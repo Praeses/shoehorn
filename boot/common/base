@@ -21,7 +21,8 @@ function run_interactive {
 
 function run {
   echo "Running command..."
-  cmd="docker run $OPTIONS $LIMITS $DNS $VOLUMNS $CONTAINER $START_COMMAND"
+  cmd="docker run $OPTIONS $DNS $VOLUMNS $CONTAINER $START_COMMAND"
+  #cmd="docker run $OPTIONS $LIMITS $DNS $VOLUMNS $CONTAINER $START_COMMAND"
   echo $cmd
   PID=$(eval $cmd)
 }

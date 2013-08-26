@@ -6,7 +6,7 @@ case "$1" in
     run
   ;;
   bundle)
-    START_COMMAND="/bin/bash -c 'cd $REMOTE_VOLUMN && bundle install --path .gems'"
+    START_COMMAND="/bin/bash -c 'cd $REMOTE_VOLUMN && bundle install --path .gems --binstubs'"
     run
   ;;
 esac
