@@ -1,0 +1,25 @@
+#!/bin/bash
+
+MB=128
+ME=$(basename $0)
+APP="Redis-Server"
+CONTAINER='praeses/redis_2.2.12'
+PORT=6379
+START_COMMAND="redis-server"
+OPTIONS="-d -p $PORT"
+
+source $PWD/boot/common/base
+
+case "$1" in
+  console)
+    START_COMMAND="redis-cli -h $IP"
+    run_interactive
+  ;;
+  start)
+    $PWD/boot/redis env
+    ;;
+  env)
+    sed -i "s/\(REDISHOST=\).*/\1$IP/g" $PWD/.env
+    sed -i "s/\(REDISPORT=\).*/\1$PORT/g" $PWD/.env
+    ;;
+esac

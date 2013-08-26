@@ -1,0 +1,136 @@
+#!/bin/bash
+
+set -u
+mkdir -p ./tmp/pids
+PID_FILE="./tmp/pids/$ME.pid"
+PORT=${PORT:=''}
+PUBLIC_PORT=${PUBLIC_PORT:=''}
+
+function setNetorkVars {
+  IP=$(docker inspect $PID | awk /IPAddress/'{print $2}' | grep -Eo '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
+  if [[ -n $PORT ]]
+  then
+    PUBLIC_PORT=$(docker port $PID $PORT)
+  fi
+}
+
+function run_interactive {
+  OPTIONS="-i -t"
+  run
+}
+
+function run {
+  echo "Running command..."
+  cmd="docker run $OPTIONS $LIMITS $DNS $VOLUMNS $CONTAINER $START_COMMAND"
+  echo $cmd
+  PID=$(eval $cmd)
+}
+
+PID=$(cat $PID_FILE)
+RUNNING=''
+if [[ -n $PID ]]
+then
+  for x in $PID
+  do
+    RUNNING=$(docker ps -q | grep $x)
+  done
+fi
+
+DNS_IP=$(cat /etc/resolv.conf | awk /192/'{print $2}' | head -1)
+DNS="-dns $DNS_IP"
+
+if [[ -n $RUNNING ]]
+then
+  setNetorkVars
+fi
+
+VOLUMNS=${VOLUMNS:=''}
+GB=${GB:=0}
+
+if [ $GB -ne 0 ]
+then
+  MB=$(echo "$GB * 1024" | bc)
+  mem="$GB Gib"
+else
+  MB=${MB:=512}
+  mem="$MB Meg"
+fi
+
+
+
+B=$(echo "$MB * 1024 * 1024" | bc)
+LIMITS="-m $B"
+
+case "$1" in
+  start)
+    if [[ -z $RUNNING ]]
+    then
+      echo "Starting $APP @ $mem"
+      run
+      echo $PID
+      echo $PID > $PID_FILE
+      setNetorkVars
+
+      echo "Running on $IP:$PUBLIC_PORT"
+    else
+      echo "Starting $APP is already running @ $mem"
+    fi
+    echo "$APP running on port `$PWD/boot/$ME port`"
+    ;;
+  stop)
+    echo "Stopping $APP"
+    docker stop $PID
+    echo "$APP stopped"
+  ;;
+
+  restart)
+    echo "Restarting $APP"
+    $PWD/boot/$ME stop
+    $PWD/boot/$ME start
+  ;;
+
+  logs)
+    for x in $PID
+    do
+      docker logs $x
+    done
+  ;;
+
+  attach)
+    for x in $PID
+    do
+      docker attach $x
+      break
+    done
+  ;;
+
+  status)
+    for x in $PID
+    do
+      docker ps | grep $x
+    done
+  ;;
+
+  ip)
+    for x in $PID
+    do
+      docker inspect $x | awk /IPAddress/'{print $2}' | grep -Eo '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})'
+    done
+  ;;
+
+  port)
+    if [[ -n $PORT ]]
+    then
+      for x in $PID
+      do
+        docker port $PID $PORT
+      done
+    fi
+  ;;
+
+  bash)
+    START_COMMAND="/bin/bash"
+    run_interactive
+  ;;
+
+esac
