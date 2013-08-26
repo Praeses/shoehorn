@@ -1,0 +1,5 @@
+/.bundle
+*.swp
+/bin
+/.gem
+/.sass-cache
