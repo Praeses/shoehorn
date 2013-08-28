@@ -3,7 +3,7 @@ class App
   attr_accessor :name, :path
 
   def self.all
-    `cd /apps; ls -d $PWD/*/`.split(/\n/).map{ |p| App.new(p) }.select{ |h| h.valid  }
+    Dir["/apps/*"].map{ |p| App.new(p) }.select{ |h| h.valid  }
   end
 
   def initialize path
@@ -21,7 +21,7 @@ class App
   end
 
   def command cmd
-    `cd #{path}; ./root/app #{cmd}`
+    `cd #{path} && ./root/app #{cmd}`
   end
 
   def to_hash
@@ -33,7 +33,7 @@ class App
   end
 
   def valid
-    `ls #{path}/boot/app` != ""
+    !Dir.glob("#{path}/boot/app").empty?
   end
 
 
