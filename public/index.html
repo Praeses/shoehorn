@@ -1,0 +1,22 @@
+<html ng-app>
+  <head>
+    <style type="text/css">
+      html {background: blue}
+    </style>
+    <script type='text/javascript' src="/javascript/angular.js" ></script>
+    <script type='text/javascript' src="/application.js" ></script>
+  </head>
+  <body>
+
+    <div ng-controller="AppsCtrl" >
+      <ul>
+        <li ng-repeat='app in apps' >
+          <div>
+            <h1>{{app.name}}</h1>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </body>
+</html>
