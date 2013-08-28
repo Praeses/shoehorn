@@ -1,40 +1,58 @@
-class App
+class App < Struct.new(:path)
+  BLACKLIST = ["LICENSE",
+               "README.md",
+               ".gitignore",
+               ".",
+               "..",
+               ".gitignore",
+               "common",
+               "definitions",
+               "examples"]
 
-  attr_accessor :name, :path
-
-  def self.all
-    Dir["/apps/*"].map{ |p| App.new(p) }.select{ |h| h.valid  }
+  class << self
+    def all
+      Dir["/apps/*"].map{ |p| App.new(p) }.select{ |h| h.valid?  }
+    end
   end
 
-  def initialize path
-    self.path = path
-    self.name = path.match(/[^\/]+\/$/).to_s[0..-2]
+  def name
+    #@name ||= path.match(/[^\/]+$/).to_s[0..-2]
+    @name ||= path.split('/').last
+  end
+
+  def start_me
+    "#{path}/start_me"
   end
 
   def autostart?
-    `ls #{path}/start_me` != ""
+    File.exists?(start_me)
   end
 
-  def autostart (value)
-    `rm -f #{path}/start_me` unless value
-    `touch #{path}/start_me` if value
+  def autostart value
+    value ?  FileUtils.touch(start_me) : File.delete(start_me)
   end
 
-  def command cmd
-    `cd #{path} && ./root/app #{cmd}`
+  def command cmd, scope = 'app'
+    Dir.chdir(path) do
+     IO.popen "./boot/#{scope} #{cmd}"
+    end
   end
 
   def to_hash
     {
-      :path => self.path,
-      :autostart => self.autostart?,
-      :name => self.name
+      path:       path,
+      autostart:  autostart?,
+      name:       name,
+      scopes:     scopes
     }
   end
 
-  def valid
+  def valid?
     !Dir.glob("#{path}/boot/app").empty?
   end
 
+  def scopes
+    Dir.entries("#{path}/boot") - BLACKLIST
+  end
 
 end

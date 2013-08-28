@@ -1,4 +1,6 @@
 require 'sinatra'
+require 'sinatra/reloader'
+require 'fileutils'
 require 'json'
 require 'coffee-script'
 require './models/app'
@@ -9,8 +11,9 @@ class Server < Sinatra::Base
   #use Sass::Plugin::Rack
 
   configure :development do
-    Sinatra::Application.reset!
-    use Rack::Reloader
+    #Sinatra::Application.reset!
+    #use Rack::Reloader
+    register Sinatra::Reloader
   end
 
   get '/' do

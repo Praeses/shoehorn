@@ -11,5 +11,3 @@ RUN apt-get install -y wget build-essential openssl libreadline6 libreadline6-de
 RUN wget ftp://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.gz; tar xvfz ruby-2.0.0-p247.tar.gz
 RUN cd /ruby-2.0.0-p247; ./configure && make && make install
 RUN gem update --system --no-rdoc --no-ri; gem install bundler --no-rdoc --no-ri
-
-RUN apt-get clean

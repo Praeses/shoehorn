@@ -1,6 +1,7 @@
 /.bundle
 *.swp
 /bin
+/log
 /tmp
 /.gems
 /config

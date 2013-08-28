@@ -1,8 +1,5 @@
 <html ng-app>
   <head>
-    <style type="text/css">
-      html {background: blue}
-    </style>
     <script type='text/javascript' src="/javascript/angular.js" ></script>
     <script type='text/javascript' src="/application.js" ></script>
   </head>
@@ -13,6 +10,15 @@
         <li ng-repeat='app in apps' >
           <div>
             <h1>{{app.name}}</h1>
+            <ul>
+              <li ng-repeat='scope in app.scopes' >
+                <i>{{scope}}</i>
+                <button scope={{scope}}>Start</button>
+                <button scope={{scope}}>Stop</button>
+                <button scope={{scope}}>Restart</button>
+                <button scope={{scope}}>Logs</button>
+              </li>
+            </ul>
           </div>
         </li>
       </ul>
